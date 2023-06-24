@@ -8,21 +8,25 @@ N = int(input())
 M = int(input())
 
 # init graph
-graph = [[INF if i != j else 0 for j in range(N + 1)] for i in range(N + 1)]
+graph = [[INF for _ in range(N)] for _ in range(N)]
+for i in range(N):
+    graph[i][i] = 0
 for _ in range(M):
     start, end, cost = map(int, input().split())
-    graph[start][end] = min(graph[start][end], cost)
+    graph[start - 1][end - 1] = min(graph[start - 1][end - 1], cost)
 
 # Floyd algorithm
-for waypoint in range(1, N + 1):
-    for start in range(1, N + 1):
-        for end in range(1, N + 1):
+for waypoint in range(N):
+    for start in range(N):
+        if waypoint == start or graph[start][waypoint] == INF:
+            continue
+        for end in range(N):
             newPath = graph[start][waypoint] + graph[waypoint][end]
             graph[start][end] = min(graph[start][end], newPath)
 
-for start in range(1, N + 1):
+for start in range(N):
     ans = []
-    for end in range(1, N + 1):
+    for end in range(N):
         cost = graph[start][end]
         ans.append(cost if cost != INF else 0)
     print(" ".join(map(str, ans)))
