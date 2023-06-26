@@ -8,98 +8,81 @@ SPACE = [list(map(int, input().split())) for _ in range(N)]
 DELTA = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 INF = float("inf")
 
-shark_pos = None
+shark_x, shark_y = 0, 0
 shark_size = 2
 shark_food = 0
 ans = 0
 
 for y in range(N):
     for x in range(N):
-        if SPACE[y][x] == 9:
-            SPACE[y][x] = 0
-            shark_pos = [y, x]
-            break
-    if shark_pos:
-        break
+        if SPACE[x][y] == 9:
+            shark_x, shark_y = x, y
+            SPACE[x][y] = 0
 
 
 def BFS():
-    y, x = shark_pos if shark_pos else [0, 0]
-
-    queue = deque([(y, x)])
+    queue = deque([(shark_x, shark_y)])
     DIST = [[-1 for _ in range(N)] for _ in range(N)]
-    DIST[y][x] = 0
+    DIST[shark_x][shark_y] = 0
 
     while queue:
-        cy, cx = queue.popleft()
+        cx, cy = queue.popleft()
 
-        for dy, dx in DELTA:
-            currY, currX = cy + dy, cx + dx
+        for dx, dy in DELTA:
+            currX, currY = cx + dx, cy + dy
 
-            if 0 <= currX < N and 0 <= currY < N:
-                if shark_size >= SPACE[currY][currX] and DIST[currY][currX] == -1:
-                    DIST[currY][currX] = DIST[cy][cx] + 1
-                    queue.append((currY, currX))
+            # SPACE범위를 벗어나는 경우
+            if not (0 <= currX < N and 0 <= currY < N):
+                continue
+            # 먹이의 크기가 더 큰 경우
+            if shark_size < SPACE[currX][currY]:
+                continue
+            # 이미 방문한 경우
+            if DIST[currX][currY] != -1:
+                continue
 
-            # # SPACE범위를 벗어나는 경우
-            # if not (0 <= currX < N and 0 <= currY < N):
-            #     continue
-            # # 먹이의 크기가 더 큰 경우
-            # if shark_size < SPACE[currY][currX]:
-            #     continue
-            # # 이미 방문한 경우
-            # if DIST[currY][currX] != -1:
-            #     continue
-
-            # # 방문한 위치까지의 최단거리를 저장 (BFS이므로 자연스럽게 최단거리)
-            # DIST[currY][currX] = DIST[cy][cx] + 1
-            # queue.append((currY, currX))
+            # 방문한 위치까지의 최단거리를 저장 (BFS이므로 자연스럽게 최단거리)
+            DIST[currX][currY] = DIST[cx][cy] + 1
+            queue.append((currX, currY))
 
     return DIST
 
 
 def seek():
-    pos = [0, 0]
+    pos_x, pos_y = 0, 0
     dist = INF
     DIST = BFS()
-    print(DIST)
 
-    for y in range(N):
-        for x in range(N):
-            if DIST[y][x] != -1 and 1 <= SPACE[y][x] < shark_size:
-                if DIST[y][x] < dist:
-                    dist = DIST[y][x]
-                    pos = [y, x]
-
-            # # BFS로 방문할 수 없는 곳인 경우
-            # if DIST[y][x] == -1:
-            #     continue
-            # # 빈 칸인 경우
-            # if SPACE[y][x] == 0:
-            #     continue
-            # # 아기 상어가 먹을 수 없는 경우
-            # if SPACE[y][x] >= shark_size:
-            #     continue
-            # # 최소거리를 계속하여 갱신
-            # if DIST[y][x] < dist:
-            #     dist = DIST[y][x]
-            #     pos = [y, x]
+    for x in range(N):
+        for y in range(N):
+            # BFS로 방문할 수 없는 곳인 경우
+            if DIST[x][y] == -1:
+                continue
+            # 빈 칸인 경우
+            if SPACE[x][y] == 0:
+                continue
+            # 아기 상어가 먹을 수 없는 경우
+            if SPACE[x][y] >= shark_size:
+                continue
+            # 최소거리를 계속하여 갱신
+            if DIST[x][y] < dist:
+                dist = DIST[x][y]
+                pos_x, pos_y = x, y
 
     # 먹을 물고기가 존재하지 않는 경우
     if dist == INF:
         return None
 
-    return dist, pos[0], pos[1]
+    return pos_x, pos_y, dist
 
 
 while True:
-    # 먹을 물고기가 존재하지 않는 경우
     if not (fish := seek()):
         break
 
-    dist, currY, currX = fish
+    shark_x, shark_y, dist = fish
     ans += dist
-    SPACE[currY][currX] = 0
+    SPACE[shark_x][shark_y] = 0
     shark_food += 1
 
     if shark_food >= shark_size:
