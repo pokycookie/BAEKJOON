@@ -5,7 +5,6 @@ fun main() = with(br) {
     val n = readLine().toInt()
     val m = readLine().toInt()
 
-    val graph = Array(n + 1) { mutableListOf<Int>() }
     val groups = mutableListOf<MutableList<Int>>()
     val visited = BooleanArray(n + 1) { false }
     val dist = Array(n + 1) { IntArray(n + 1) { 999 } }
@@ -16,7 +15,8 @@ fun main() = with(br) {
         val result = mutableListOf(start)
 
         visited[start] = true
-        for (next in graph[start]) {
+        for (next in 1 .. n) {
+            if (dist[start][next] == 999) continue
             if (visited[next]) continue
             result.addAll(grouping(next))
         }
@@ -34,6 +34,7 @@ fun main() = with(br) {
                 }
             }
         }
+
         for (vertex in group) {
             val list = mutableListOf<Int>()
             for (target in group) list.add(dist[vertex][target])
@@ -49,8 +50,6 @@ fun main() = with(br) {
 
     repeat(m) {
         val (v1, v2) = readLine().split(" ").map { it.toInt() }
-        graph[v1].add(v2)
-        graph[v2].add(v1)
         dist[v1][v2] = 1
         dist[v2][v1] = 1
     }
