@@ -16,13 +16,13 @@ public class Main {
         int n = Integer.parseInt(st.nextToken());
         int m = Integer.parseInt(st.nextToken());
 
-        path = new List[101];
-        for (int i = 0; i < 101; i++) {
+        path = new List[n];
+        for (int i = 0; i < n; i++) {
             path[i] = new ArrayList<>();
         }
 
-        dest = new int[10000];
-        for (int i = 0; i < 10000; i++) {
+        dest = new int[n];
+        for (int i = 0; i < n; i++) {
             dest[i] = -1;
         }
 
@@ -35,7 +35,7 @@ public class Main {
 
         int ans = 0;
         for (int i = 0; i < n; i++) {
-            visited = new boolean[10000];
+            visited = new boolean[n];
             if (matching(i)) {
                 ans++;
             }
